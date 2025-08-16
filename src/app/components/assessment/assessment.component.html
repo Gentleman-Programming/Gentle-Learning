@@ -1,0 +1,149 @@
+<div class="assessment-container">
+  <div class="progress-bar">
+    <div class="progress-fill" [style.width.%]="progress()"></div>
+  </div>
+
+  <div class="assessment-content">
+    <!-- Debug info -->
+    <div style="position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; font-size: 12px;">
+      Step: {{ currentStep() }} / {{ totalSteps() - 1 }}
+    </div>
+    
+    @if (currentStep() === 0) {
+      <div class="step-container">
+        <h2>Welcome to Gentle Learning</h2>
+        <p>Let's personalize your study experience based on scientific research.</p>
+        
+        <form [formGroup]="assessmentForm" class="assessment-form">
+          <div class="form-group">
+            <label for="name">Your Name</label>
+            <input 
+              type="text" 
+              id="name" 
+              formControlName="name"
+              placeholder="Enter your name"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="age">Your Age</label>
+            <input 
+              type="number" 
+              id="age" 
+              formControlName="age"
+              min="7"
+              max="100"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Study Intensity</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input 
+                  type="radio" 
+                  formControlName="studyIntensity" 
+                  value="intensive">
+                <span>Intensive (Exam/Deadline)</span>
+                <small>Optimized for short-term retention and urgent goals</small>
+              </label>
+              <label class="radio-option">
+                <input 
+                  type="radio" 
+                  formControlName="studyIntensity" 
+                  value="casual">
+                <span>Casual (Long-term Learning)</span>
+                <small>Optimized for deep understanding and retention</small>
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
+    }
+
+    @for (question of questions; track question.id; let i = $index) {
+      @if (currentStep() === i + 1) {
+        <div class="step-container">
+          <h3>{{ question.question }}</h3>
+          
+          @if (question.type === 'multiple-choice' || question.type === 'time-preference') {
+            <div class="options-container">
+              @for (option of question.options; track option) {
+                <button 
+                  class="option-button"
+                  (click)="recordAnswer(question.id, option)">
+                  {{ option }}
+                </button>
+              }
+            </div>
+          }
+
+          @if (question.type === 'scale') {
+            <div class="scale-container">
+              <div class="scale-labels">
+                <span>Low</span>
+                <span>High</span>
+              </div>
+              <div class="scale-options">
+                @for (value of [1, 2, 3, 4, 5]; track value) {
+                  <button 
+                    class="scale-button"
+                    (click)="recordAnswer(question.id, value)">
+                    {{ value }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    @if (currentStep() === totalSteps() - 1) {
+      <div class="step-container">
+        <h2>Assessment Complete!</h2>
+        <p>We've analyzed your responses and created a personalized study plan optimized for your learning style.</p>
+        
+        <div class="results-preview">
+          <h3>Your Optimized Study Parameters:</h3>
+          <ul>
+            <li>Session Length: Calculated based on your age and attention span</li>
+            <li>Break Duration: Optimized using the 52/17 ratio</li>
+            <li>Peak Performance: Adjusted for your chronotype</li>
+            <li>Notification Schedule: Based on JITAI framework</li>
+          </ul>
+        </div>
+
+        <button class="primary-button" (click)="completeAssessment()">
+          Start Learning
+        </button>
+      </div>
+    }
+
+    <!-- Fallback content if no conditions match -->
+    @if (currentStep() > 0 && currentStep() < totalSteps() - 1 && !isQuestionStep(currentStep())) {
+      <div class="step-container">
+        <h3>Loading...</h3>
+        <p>Please wait while we prepare your next question.</p>
+      </div>
+    }
+  </div>
+
+  <div class="navigation-buttons">
+    @if (currentStep() > 0 && currentStep() < totalSteps() - 1) {
+      <button class="secondary-button" (click)="previousStep()">
+        Previous
+      </button>
+      <div class="spacer"></div>
+    }
+    
+    @if (currentStep() === 0) {
+      <button 
+        class="primary-button" 
+        [disabled]="!assessmentForm.valid"
+        (click)="nextStep()">
+        Continue
+      </button>
+    }
+  </div>
+</div>

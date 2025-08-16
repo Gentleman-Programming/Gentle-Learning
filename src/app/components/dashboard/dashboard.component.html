@@ -1,0 +1,140 @@
+<div class="dashboard-container">
+  @if (userProfile()) {
+    <div class="welcome-section">
+      <h1>Welcome back, {{ userProfile()!.name }}!</h1>
+      <p class="chronotype-info">
+        <span class="icon">{{ getChronotypeIcon(userProfile()!.chronotype) }}</span>
+        {{ getChronotypeLabel(userProfile()!.chronotype) }}
+        @if (userProfile()!.studyIntensity === 'intensive') {
+          • Intensive Mode
+        }
+      </p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card today">
+        <h3>Today</h3>
+        @if (todayStats()) {
+          <div class="stat-value">{{ formatMinutes(todayStats()!.totalMinutes) }}</div>
+          <div class="stat-details">
+            <span>{{ todayStats()!.totalSessions }} sessions</span>
+            <span>{{ todayStats()!.averageFocus.toFixed(0) }}% focus</span>
+          </div>
+        } @else {
+          <div class="stat-value">No sessions yet</div>
+          <a routerLink="/session" class="start-link">Start your first session</a>
+        }
+      </div>
+
+      <div class="stat-card week">
+        <h3>This Week</h3>
+        @if (weekStats() && weekStats()!.totalSessions > 0) {
+          <div class="stat-value">{{ formatMinutes(weekStats()!.totalMinutes) }}</div>
+          <div class="stat-details">
+            <span>{{ weekStats()!.totalSessions }} sessions</span>
+            <span>{{ weekStats()!.completionRate.toFixed(0) }}% completion</span>
+          </div>
+        } @else {
+          <div class="stat-value">0 min</div>
+        }
+      </div>
+
+      <div class="stat-card month">
+        <h3>This Month</h3>
+        @if (monthStats() && monthStats()!.totalSessions > 0) {
+          <div class="stat-value">{{ formatMinutes(monthStats()!.totalMinutes) }}</div>
+          <div class="stat-details">
+            <span>{{ monthStats()!.sessionsPerDay.toFixed(1) }} sessions/day</span>
+          </div>
+        } @else {
+          <div class="stat-value">0 min</div>
+        }
+      </div>
+    </div>
+
+    @if (studySchedule()) {
+      <div class="schedule-card">
+        <h2>Your Optimized Schedule</h2>
+        <div class="schedule-grid">
+          <div class="schedule-item">
+            <span class="label">Optimal Session</span>
+            <span class="value">{{ studySchedule()!.sessionLength }} min</span>
+          </div>
+          <div class="schedule-item">
+            <span class="label">Break Duration</span>
+            <span class="value">{{ studySchedule()!.breakDuration }} min</span>
+          </div>
+          <div class="schedule-item">
+            <span class="label">Peak Time</span>
+            <span class="value">{{ formatTime(studySchedule()!.optimalStartTime) }}</span>
+          </div>
+          <div class="schedule-item">
+            <span class="label">Daily Max</span>
+            <span class="value">{{ formatMinutes(studySchedule()!.maxDailyStudyTime) }}</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="content-grid">
+      <div class="recent-sessions">
+        <h2>Recent Sessions</h2>
+        @if (recentSessions().length > 0) {
+          <div class="sessions-list">
+            @for (session of recentSessions(); track session.id) {
+              <div class="session-item">
+                <div class="session-info">
+                  <span class="subject">{{ session.subject }}</span>
+                  <span class="date">{{ formatDate(session.startTime) }}</span>
+                </div>
+                <div class="session-stats">
+                  <span class="duration">{{ formatMinutes(session.actualDuration || 0) }}</span>
+                  <span class="status" [class]="session.status">{{ session.status }}</span>
+                </div>
+              </div>
+            }
+          </div>
+          <a routerLink="/stats" class="view-all">View all sessions →</a>
+        } @else {
+          <p class="empty-state">No sessions yet. Start studying to see your progress here!</p>
+          <a routerLink="/session" class="start-button">Start Session</a>
+        }
+      </div>
+
+      <div class="upcoming-reviews">
+        <h2>Items to Review</h2>
+        @if (upcomingReviews().length > 0) {
+          <div class="reviews-list">
+            @for (item of upcomingReviews(); track item.id) {
+              <div class="review-item">
+                <span class="subject">{{ item.subject }}</span>
+                <span class="difficulty">Difficulty: {{ item.difficulty }}/5</span>
+              </div>
+            }
+          </div>
+          <a routerLink="/review" class="view-all">Review all items →</a>
+        } @else {
+          <p class="empty-state">No items due for review. Add study materials to use spaced repetition!</p>
+        }
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <a routerLink="/session" class="action-button primary">
+        Start Study Session
+      </a>
+      <a routerLink="/review" class="action-button secondary">
+        Review Items
+      </a>
+      <a routerLink="/settings" class="action-button secondary">
+        Settings
+      </a>
+    </div>
+  } @else {
+    <div class="no-profile">
+      <h2>Welcome to Gentle Learning!</h2>
+      <p>Complete the assessment to get your personalized study plan.</p>
+      <a routerLink="/assessment" class="start-button">Start Assessment</a>
+    </div>
+  }
+</div>

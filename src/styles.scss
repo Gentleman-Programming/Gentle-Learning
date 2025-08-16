@@ -1,1 +1,139 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global Styles for Gentle Learning */
+
+:root {
+  /* Primary Colors */
+  --primary-color: #E343B9;
+  --primary-light: #FF4CC9;
+  --primary-dark: #C73B98;
+  --primary-alpha-10: rgba(227, 67, 185, 0.1);
+  --primary-alpha-20: rgba(227, 67, 185, 0.2);
+  --primary-alpha-30: rgba(227, 67, 185, 0.3);
+  --primary-alpha-50: rgba(227, 67, 185, 0.5);
+  --primary-alpha-70: rgba(227, 67, 185, 0.7);
+  --primary-alpha-80: rgba(227, 67, 185, 0.8);
+  
+  /* Background Colors */
+  --background-dark: #000000;
+  --background-card: #111111;
+  --background-hover: #222222;
+  --background-border: #333333;
+  
+  /* Text Colors */
+  --text-primary: #E343B9;              /* Títulos y elementos de énfasis */
+  --text-reading: rgb(208, 204, 198);   /* Texto de lectura principal */
+  --text-secondary: rgba(208, 204, 198, 0.8);
+  --text-muted: rgba(208, 204, 198, 0.7);
+  --text-placeholder: rgba(208, 204, 198, 0.5);
+  --text-inverse: #000000;
+  --text-on-primary: #FFFFFF;           /* Texto blanco sobre fondos rosa */
+  
+  /* Gradient Colors */
+  --gradient-primary: linear-gradient(135deg, #E343B9 0%, #FF4CC9 100%);
+  --gradient-secondary: linear-gradient(90deg, #E343B9, #FF4CC9);
+  
+  /* Status Colors */
+  --success-color: #10b981;
+  --success-light: #34d399;
+  --success-background: #d1fae5;
+  --warning-color: #fbbf24;
+  --warning-background: #fef3c7;
+  --error-color: #ef4444;
+  --error-background: #fee2e2;
+  
+  /* Shadow Colors */
+  --shadow-primary: rgba(227, 67, 185, 0.1);
+  --shadow-primary-hover: rgba(227, 67, 185, 0.2);
+  --shadow-primary-focus: rgba(227, 67, 185, 0.3);
+  
+  /* Border Radius */
+  --border-radius-sm: 0.25rem;
+  --border-radius: 0.5rem;
+  --border-radius-lg: 1rem;
+  --border-radius-full: 50%;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Typography */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.75rem;
+  --font-size-4xl: 2rem;
+  --font-size-5xl: 2.5rem;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  color: var(--text-reading);
+  background: var(--background-dark);
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

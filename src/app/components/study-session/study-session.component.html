@@ -1,0 +1,176 @@
+<div class="study-session-container">
+  @if (!sessionActive()) {
+    <div class="session-setup">
+      <h2>Start a Study Session</h2>
+      
+      @if (studySchedule()) {
+        <div class="optimal-params">
+          <h3>Your Optimized Parameters</h3>
+          <div class="params-grid">
+            <div class="param">
+              <span class="label">Session Length</span>
+              <span class="value">{{ studySchedule()!.sessionLength }} min</span>
+            </div>
+            <div class="param">
+              <span class="label">Break Duration</span>
+              <span class="value">{{ studySchedule()!.breakDuration }} min</span>
+            </div>
+            <div class="param">
+              <span class="label">Max Concepts</span>
+              <span class="value">{{ studySchedule()!.maxConcepts }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <form [formGroup]="sessionForm" class="session-form">
+        <div class="form-group">
+          <label for="subject">What will you study?</label>
+          <input 
+            type="text" 
+            id="subject" 
+            formControlName="subject"
+            placeholder="e.g., Mathematics, Programming, History"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Session Type</label>
+          <div class="session-types">
+            <label class="type-option">
+              <input type="radio" formControlName="sessionType" value="study">
+              <span>Study</span>
+            </label>
+            <label class="type-option">
+              <input type="radio" formControlName="sessionType" value="review">
+              <span>Review</span>
+            </label>
+            <label class="type-option">
+              <input type="radio" formControlName="sessionType" value="practice">
+              <span>Practice</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="customDuration">Custom Duration (optional)</label>
+          <input 
+            type="number" 
+            id="customDuration" 
+            formControlName="customDuration"
+            placeholder="Leave empty for optimized duration"
+            min="5"
+            max="120"
+            class="form-control">
+        </div>
+
+        <button 
+          class="start-button"
+          [disabled]="!sessionForm.valid"
+          (click)="startSession()">
+          Start Session
+        </button>
+      </form>
+
+      @if (todayStats()) {
+        <div class="stats-container">
+          <h3>Today's Progress</h3>
+          <div class="stats-grid">
+            <div class="stat">
+              <span class="value">{{ todayStats()!.totalSessions }}</span>
+              <span class="label">Sessions</span>
+            </div>
+            <div class="stat">
+              <span class="value">{{ todayStats()!.totalMinutes }}</span>
+              <span class="label">Minutes</span>
+            </div>
+            <div class="stat">
+              <span class="value">{{ todayStats()!.averageFocus.toFixed(0) }}%</span>
+              <span class="label">Focus</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (sessionActive()) {
+    <div class="active-session">
+      <div class="session-header">
+        <h2>{{ currentSession()?.subject }}</h2>
+        <span class="session-type">{{ currentSession()?.sessionType }}</span>
+      </div>
+
+      <div class="timer-display">
+        <div class="timer">{{ displayTime() }}</div>
+        @if (onBreak()) {
+          <div class="status">On Break</div>
+        } @else if (sessionPaused()) {
+          <div class="status">Paused</div>
+        } @else {
+          <div class="status">In Progress</div>
+        }
+      </div>
+
+      <div class="progress-container">
+        @if (!onBreak()) {
+          <div class="progress-bar">
+            <div class="progress-fill session-progress" [style.width.%]="sessionProgress()"></div>
+          </div>
+          <span class="progress-label">Session Progress</span>
+        } @else {
+          <div class="progress-bar">
+            <div class="progress-fill break-progress" [style.width.%]="breakProgress()"></div>
+          </div>
+          <span class="progress-label">Break Progress</span>
+        }
+      </div>
+
+      @if (microbreakCountdown() > 0) {
+        <div class="microbreak-alert">
+          <span>Microbreak: Look away for {{ microbreakCountdown() }}s</span>
+        </div>
+      }
+
+      <div class="session-controls">
+        @if (!onBreak()) {
+          @if (!sessionPaused()) {
+            <button class="control-button pause" (click)="pauseSession()">
+              Pause
+            </button>
+          } @else {
+            <button class="control-button resume" (click)="resumeSession()">
+              Resume
+            </button>
+          }
+          <button class="control-button break" (click)="startBreak()">
+            Take Break
+          </button>
+        } @else {
+          <button class="control-button resume" (click)="endBreak()">
+            End Break
+          </button>
+        }
+        <button class="control-button end" (click)="endSession()">
+          End Session
+        </button>
+      </div>
+
+      <div class="fatigue-tracker">
+        <label>How tired are you feeling?</label>
+        <div class="fatigue-scale">
+          @for (level of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track level) {
+            <button 
+              class="fatigue-button"
+              [class.high]="level >= 7"
+              [class.medium]="level >= 4 && level < 7"
+              [class.low]="level < 4"
+              (click)="reportFatigue(level)">
+              {{ level }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
