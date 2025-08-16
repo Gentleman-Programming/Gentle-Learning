@@ -1,6 +1,6 @@
 import { Injectable, signal, effect } from '@angular/core';
 import { UserProfile } from '../models/user-profile.model';
-import { StudySession, StudySchedule } from '../models/study-session.model';
+import { StudySession, StudySchedule, ReviewItem } from '../models/study-session.model';
 import { StudyItem, ReviewSession } from '../models/spaced-repetition.model';
 
 @Injectable({
@@ -13,6 +13,7 @@ export class StorageService {
     STUDY_SCHEDULE: 'gentle_learning_study_schedule',
     STUDY_ITEMS: 'gentle_learning_study_items',
     REVIEW_SESSIONS: 'gentle_learning_review_sessions',
+    REVIEW_QUEUE: 'gentle_learning_review_queue',
     SETTINGS: 'gentle_learning_settings'
   };
 
@@ -22,6 +23,7 @@ export class StorageService {
   studySchedule = signal<StudySchedule | null>(null);
   studyItems = signal<StudyItem[]>([]);
   reviewSessions = signal<ReviewSession[]>([]);
+  reviewQueue = signal<ReviewItem[]>([]);
 
   constructor() {
     this.loadAllData();
@@ -55,6 +57,11 @@ export class StorageService {
       const reviews = this.reviewSessions();
       this.saveToLocalStorage(this.STORAGE_KEYS.REVIEW_SESSIONS, reviews);
     });
+
+    effect(() => {
+      const queue = this.reviewQueue();
+      this.saveToLocalStorage(this.STORAGE_KEYS.REVIEW_QUEUE, queue);
+    });
   }
 
   private loadAllData(): void {
@@ -81,6 +88,11 @@ export class StorageService {
     const reviews = this.loadFromLocalStorage<ReviewSession[]>(this.STORAGE_KEYS.REVIEW_SESSIONS);
     if (reviews) {
       this.reviewSessions.set(reviews);
+    }
+
+    const queue = this.loadFromLocalStorage<ReviewItem[]>(this.STORAGE_KEYS.REVIEW_QUEUE);
+    if (queue) {
+      this.reviewQueue.set(queue);
     }
   }
 
@@ -167,6 +179,35 @@ export class StorageService {
   // Review Session methods
   addReviewSession(review: ReviewSession): void {
     this.reviewSessions.update(reviews => [...reviews, review]);
+  }
+
+  // Review Queue methods (SM-2 Spaced Repetition)
+  addToReviewQueue(item: ReviewItem): void {
+    this.reviewQueue.update(queue => {
+      // Remove existing item for same session if any
+      const filtered = queue.filter(q => q.sessionId !== item.sessionId);
+      return [...filtered, item];
+    });
+  }
+
+  getReviewsDue(userId?: string): ReviewItem[] {
+    const now = new Date();
+    return this.reviewQueue().filter(item => 
+      new Date(item.nextReview) <= now &&
+      (!userId || this.studySessions().find(s => s.id === item.sessionId)?.userId === userId)
+    );
+  }
+
+  updateReviewItem(sessionId: string, updates: Partial<ReviewItem>): void {
+    this.reviewQueue.update(queue =>
+      queue.map(item => item.sessionId === sessionId ? { ...item, ...updates } : item)
+    );
+  }
+
+  removeFromReviewQueue(sessionId: string): void {
+    this.reviewQueue.update(queue => 
+      queue.filter(item => item.sessionId !== sessionId)
+    );
   }
 
   // Statistics methods

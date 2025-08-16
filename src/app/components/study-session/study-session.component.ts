@@ -258,6 +258,24 @@ export class StudySessionComponent implements OnInit, OnDestroy {
     const actualDuration = this.sessionTime() / 60;
     const completionRate = Math.min(100, (actualDuration / session.plannedDuration) * 100);
 
+    // Calculate next review interval using SM-2 algorithm
+    const quality = this.calculateSessionQuality(session, completionRate);
+    const nextInterval = this.optimizerService.calculateNextInterval(
+      session.lastInterval || 0,
+      session.easeFactor || 2.5,
+      quality
+    );
+    const newEaseFactor = this.optimizerService.updateEaseFactor(
+      session.easeFactor || 2.5,
+      quality
+    );
+
+    // Schedule next review
+    const nextReviewDate = this.optimizerService.getOptimalReviewTime(
+      new Date(),
+      nextInterval
+    );
+
     this.storageService.updateStudySession(session.id, {
       endTime: new Date(),
       actualDuration,
@@ -265,11 +283,35 @@ export class StudySessionComponent implements OnInit, OnDestroy {
       performance: {
         ...session.performance,
         completionRate
-      }
+      },
+      nextReview: nextReviewDate,
+      lastInterval: nextInterval,
+      easeFactor: newEaseFactor,
+      qualityScore: quality,
+      reviewCount: (session.reviewCount || 0) + 1
+    });
+
+    // Add to spaced repetition queue
+    this.storageService.addToReviewQueue({
+      sessionId: session.id,
+      subject: session.subject,
+      difficulty: this.calculateDifficulty(quality),
+      nextReview: nextReviewDate,
+      interval: nextInterval,
+      easeFactor: newEaseFactor,
+      reviewCount: (session.reviewCount || 0) + 1,
+      lastReviewed: new Date()
     });
 
     this.clearAllIntervals();
     this.resetSession();
+
+    // Show completion notification with next review info
+    this.notificationService.showNotification(
+      'Session Complete!',
+      `Next review scheduled for ${nextReviewDate.toLocaleDateString()}`,
+      'completion'
+    );
   }
 
   private scheduleMicrobreaks(): void {
@@ -326,6 +368,38 @@ export class StudySessionComponent implements OnInit, OnDestroy {
     return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
+  private calculateSessionQuality(session: StudySession, completionRate: number): number {
+    // Calculate quality score (0-5) based on multiple factors
+    let quality = 3; // Start with neutral
+
+    // Factor 1: Completion rate
+    if (completionRate >= 90) quality += 1;
+    else if (completionRate >= 70) quality += 0.5;
+    else if (completionRate < 50) quality -= 1;
+
+    // Factor 2: Self-reported fatigue (inverse relationship)
+    const fatigueImpact = (10 - session.performance.selfReportedFatigue) / 10;
+    quality += fatigueImpact;
+
+    // Factor 3: Focus score
+    if (session.performance.focusScore >= 80) quality += 0.5;
+    else if (session.performance.focusScore < 60) quality -= 0.5;
+
+    // Factor 4: Number of breaks taken vs planned
+    const expectedBreaks = Math.floor(session.plannedDuration / 60); // One break per hour
+    const actualBreaks = session.breaksTaken.length;
+    if (actualBreaks <= expectedBreaks) quality += 0.3;
+    else quality -= 0.3;
+
+    return Math.max(0, Math.min(5, quality));
+  }
+
+  private calculateDifficulty(quality: number): 'easy' | 'medium' | 'hard' {
+    if (quality >= 4) return 'easy';
+    if (quality >= 2.5) return 'medium';
+    return 'hard';
+  }
+
   reportFatigue(level: number): void {
     const session = this.currentSession();
     if (session) {
@@ -336,18 +410,82 @@ export class StudySessionComponent implements OnInit, OnDestroy {
         }
       });
 
-      // If fatigue is high, suggest a break
-      if (level >= 7 && !this.onBreak()) {
-        const trigger = this.notificationService.getAdaptiveTrigger(
-          10 - level, // Convert fatigue to motivation
-          5, // Assume high ability
-          'during'
+      // Adaptive response based on fatigue level and current context
+      this.handleFatigueResponse(level, session);
+    }
+  }
+
+  private handleFatigueResponse(fatigueLevel: number, session: StudySession): void {
+    const schedule = this.studySchedule();
+    if (!schedule) return;
+
+    // Track fatigue pattern for future optimization
+    const currentTime = this.sessionTime() / 60; // minutes
+    const fatigueData = {
+      level: fatigueLevel,
+      timeElapsed: currentTime,
+      sessionLength: session.plannedDuration,
+      timeOfDay: new Date().getHours()
+    };
+
+    if (fatigueLevel >= 8) {
+      // Critical fatigue - immediate intervention
+      if (!this.onBreak()) {
+        this.startBreak();
+        this.notificationService.showNotification(
+          'Critical Fatigue Detected',
+          'Starting immediate break to prevent burnout',
+          'fatigue'
         );
+      }
+    } else if (fatigueLevel >= 6) {
+      // High fatigue - suggest action
+      const trigger = this.notificationService.getAdaptiveTrigger(
+        10 - fatigueLevel, // Convert fatigue to motivation (lower motivation)
+        3, // Reduced ability due to fatigue
+        'during'
+      );
+      
+      this.notificationService.showNotification(
+        'High Fatigue Detected',
+        trigger.message,
+        'fatigue'
+      );
+
+      // Suggest micro-break if not already on break
+      if (!this.onBreak() && currentTime >= 15) {
+        this.notificationService.scheduleMicrobreak(0);
+      }
+    } else if (fatigueLevel >= 4) {
+      // Moderate fatigue - gentle suggestion
+      this.notificationService.showNotification(
+        'Take Care',
+        'Consider a short break or some deep breaths',
+        'wellness'
+      );
+    }
+
+    // Adaptive session optimization
+    this.optimizeSessionBasedOnFatigue(fatigueLevel, currentTime);
+  }
+
+  private optimizeSessionBasedOnFatigue(fatigueLevel: number, currentTime: number): void {
+    const session = this.currentSession();
+    const schedule = this.studySchedule();
+    if (!session || !schedule) return;
+
+    // If consistently high fatigue, suggest shorter future sessions
+    if (fatigueLevel >= 7 && currentTime < session.plannedDuration * 0.5) {
+      // User is fatigued less than halfway through - session might be too long
+      const userProfile = this.userProfile();
+      if (userProfile) {
+        // Reduce recommended session length by 15%
+        const newRecommendedLength = Math.max(15, session.plannedDuration * 0.85);
         
         this.notificationService.showNotification(
-          'Fatigue Detected',
-          trigger.message,
-          'fatigue'
+          'Session Optimization',
+          `Consider ${Math.round(newRecommendedLength)}-minute sessions for better focus`,
+          'optimization'
         );
       }
     }

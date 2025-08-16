@@ -216,10 +216,11 @@
       font-size: var(--font-size-5xl);
       font-weight: 700;
       font-variant-numeric: tabular-nums;
-      background: var(--gradient-secondary);
+      background: var(--gradient-primary);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      text-shadow: 0 0 20px var(--shadow-primary);
     }
 
     .status {

@@ -56,6 +56,13 @@ export class DashboardComponent implements OnInit {
     return this.optimizerService.calculateOptimalStudySchedule(profile);
   });
 
+  // Reviews due for spaced repetition
+  reviewsDue = computed(() => {
+    const profile = this.userProfile();
+    if (!profile) return [];
+    return this.storageService.getReviewsDue(profile.id).slice(0, 5);
+  });
+
   ngOnInit(): void {
     const profile = this.userProfile();
     if (!profile || !profile.assessmentCompleted) {

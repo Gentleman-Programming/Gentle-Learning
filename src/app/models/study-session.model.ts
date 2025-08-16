@@ -10,6 +10,12 @@ export interface StudySession {
   performance: SessionPerformance;
   status: 'planned' | 'in-progress' | 'completed' | 'paused';
   sessionType: 'study' | 'review' | 'practice';
+  // SM-2 Algorithm fields
+  nextReview?: Date;
+  lastInterval?: number; // days
+  easeFactor?: number; // 1.3 - 2.5+
+  qualityScore?: number; // 0-5
+  reviewCount?: number;
 }
 
 export interface Break {
@@ -44,4 +50,15 @@ export interface ScheduledSession {
   priority: 'high' | 'medium' | 'low';
   isCompleted: boolean;
   notificationScheduled: boolean;
+}
+
+export interface ReviewItem {
+  sessionId: string;
+  subject: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  nextReview: Date;
+  interval: number; // days
+  easeFactor: number;
+  reviewCount?: number;
+  lastReviewed?: Date;
 }

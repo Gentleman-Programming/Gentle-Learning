@@ -37,12 +37,15 @@ Esta aplicación está basada en **investigación científica real**, no en moda
 
 ### 📊 Fundamentos Científicos
 
-- **🔬 Spaced Repetition**: Basado en el algoritmo SM-2 de SuperMemo, con **15% más retención** que el estudio tradicional
-- **⏰ Ritmos Ultradianos**: Ciclos de 90-120 minutos descobridos por Nathaniel Kleitman para optimizar concentración
-- **🎯 Ratio 52/17**: Análisis de DeskTime de los mejores performers - **52 minutos de trabajo, 17 de descanso**
-- **🧠 Teoría de Carga Cognitiva**: Límite de 4±1 elementos en memoria de trabajo (John Sweller)
-- **🌅 Cronotipos**: Hasta **25% mejor rendimiento** cuando sincronizas con tu ritmo circadiano
-- **📲 JITAI Framework**: Just-in-Time Adaptive Interventions para notificaciones inteligentes
+- **🔬 Repetición Espaciada SM-2**: Programación automática de revisiones con **15% más retención** que el estudio tradicional
+- **⏰ Ritmos Ultradianos**: Ciclos de 90-120 minutos con ratio óptimo de trabajo-descanso 52/17
+- **🎯 Ratio DeskTime 52/17**: Timing basado en evidencia de **los mejores performers**
+- **🧠 Teoría de Carga Cognitiva**: Sesiones limitadas a 4±1 conceptos para procesamiento óptimo de memoria
+- **🌅 Optimización de Cronotipos**: Hasta **25% mejor rendimiento** con sincronización circadiana
+- **📲 Framework JITAI**: Notificaciones inteligentes en horarios de máximo engagement (6-8am, 10pm-medianoche)
+- **🌿 Descansos Basados en Evidencia**: Escenas de naturaleza de 40 segundos para **23% mejora de atención**
+- **🎯 Evaluación SART**: Medición de atención sostenida para sesiones personalizadas
+- **🔄 Detección Adaptiva de Fatiga**: Optimización en tiempo real basada en retroalimentación
 
 ### 📈 Resultados Comprobados
 
@@ -129,33 +132,77 @@ bun run test                # Tests unitarios
 
 ## 🧮 Los Algoritmos en Acción
 
-### 📐 Cálculo de Sesión Óptima
+### 📐 Implementación del Ratio DeskTime 52/17
 ```typescript
 function calculateOptimalSession(userProfile: UserProfile) {
-  const baseAttentionSpan = userProfile.age < 18 
+  // Aplicar ratio 52/17 basado en evidencia para adultos
+  if (userProfile.age >= 18 && userProfile.age <= 60) {
+    return {
+      sessionLength: 52, // minutos - mejores performers de DeskTime
+      breakDuration: 17, // minutos - ratio óptimo 3:1
+      maxConcepts: 4     // límite de Teoría de Carga Cognitiva
+    };
+  }
+  
+  // Ajustado por edad para estudiantes más jóvenes/mayores
+  const attentionSpan = userProfile.age < 18 
     ? Math.min(userProfile.age * 3, 45) 
-    : 50;
+    : Math.min(50, ULTRADIAN_CYCLE * 0.8);
     
-  const sessionLength = Math.min(
-    baseAttentionSpan, 
-    ULTRADIAN_CYCLE * 0.8 // 90 min * 0.8 = 72 min máx
-  );
-  
-  const breakDuration = sessionLength * 0.22; // Ratio científico
-  
-  return { sessionLength, breakDuration };
+  return {
+    sessionLength: attentionSpan,
+    breakDuration: attentionSpan * 0.22,
+    maxConcepts: userProfile.age < 18 ? 3 : 4
+  };
 }
 ```
 
-### 🔄 Repetición Espaciada SM-2
+### 🔄 SM-2 Avanzado con Evaluación de Calidad
 ```typescript
-function calculateNextInterval(interval: number, easeFactor: number, quality: number) {
-  if (quality >= 3) { // Respuesta correcta
-    return interval === 0 ? 1 : 
-           interval === 1 ? 6 : 
-           Math.round(interval * easeFactor);
+function calculateSessionQuality(session: StudySession, completionRate: number): number {
+  let quality = 3; // Comenzar neutral
+  
+  // Factor 1: Tasa de completitud
+  if (completionRate >= 90) quality += 1;
+  else if (completionRate < 50) quality -= 1;
+  
+  // Factor 2: Impacto de fatiga (inverso)
+  quality += (10 - session.performance.selfReportedFatigue) / 10;
+  
+  // Factor 3: Puntuación de enfoque
+  if (session.performance.focusScore >= 80) quality += 0.5;
+  
+  return Math.max(0, Math.min(5, quality));
+}
+
+function scheduleNextReview(quality: number, interval: number, easeFactor: number) {
+  const nextInterval = calculateNextInterval(interval, easeFactor, quality);
+  const newEaseFactor = updateEaseFactor(easeFactor, quality);
+  
+  return {
+    nextReview: getOptimalReviewTime(new Date(), nextInterval),
+    interval: nextInterval,
+    easeFactor: newEaseFactor
+  };
+}
+```
+
+### 🌿 Actividades de Descanso Basadas en Evidencia
+```typescript
+function getOptimalBreakActivities(duration: number) {
+  if (duration <= 2) {
+    // Microdescansos: escenas de naturaleza 40 seg = 23% mejora de atención
+    return [
+      { activity: 'Ver escenas de naturaleza', duration: 40, benefit: '23% mejora de atención' },
+      { activity: 'Respiración profunda (4-7-8)', duration: 60, benefit: 'Reduce carga cognitiva' }
+    ];
   }
-  return 1; // Reiniciar si es incorrecta
+  
+  // Descansos largos: movimiento = 15% mejora musculoesquelética
+  return [
+    { activity: 'Movimiento físico ligero', benefit: '15% mejora musculoesquelética' },
+    { activity: 'Caminata en naturaleza', benefit: '20% aumento memoria de trabajo' }
+  ];
 }
 ```
 
@@ -163,19 +210,25 @@ function calculateNextInterval(interval: number, easeFactor: number, quality: nu
 
 ## 🌟 Roadmap
 
-### 🎯 Fase Actual (v1.0)
-- [x] Assessment científico completo
-- [x] Algoritmos de repetición espaciada
-- [x] Optimización de sesiones
-- [x] Tema dark accesible
-- [x] Deploy en GitHub Pages
+### 🎯 Fase Actual (v1.0) - ✅ COMPLETADO
+- [x] **Assessment científico SART** con evaluación de cronotipos
+- [x] **Repetición espaciada SM-2** con programación automática de revisiones
+- [x] **Ratio DeskTime 52/17** optimizado para estudiantes adultos
+- [x] **Teoría de carga cognitiva** implementada (límite de 4±1 conceptos)
+- [x] **Framework JITAI** para timing óptimo de notificaciones
+- [x] **Microdescansos basados en evidencia** con recomendaciones de naturaleza
+- [x] **Detección adaptiva de fatiga** con optimización en tiempo real
+- [x] **Integración de ritmos ultradianos** para programación de sesiones
+- [x] **Tema dark elegante** con conformidad WCAG 2.1 AA
+- [x] **Deploy en GitHub Pages** con pipeline CI/CD
 
 ### 🚀 Próximas Características (v2.0)
-- [ ] **Gamificación Científica** - Sistema de logros basado en neurociencia
-- [ ] **Análisis de Progreso** - Gráficos de curva de olvido personalizada
-- [ ] **Modo Colaborativo** - Sesiones de estudio grupales optimizadas
-- [ ] **IA Adaptativa** - Machine learning para predicción de rendimiento
-- [ ] **Integración con Calendarios** - Scheduling automático
+- [ ] **Algoritmo LECTOR** - Repetición Orientada a Conceptos Mejorada con LLM (90.2% de éxito)
+- [ ] **Práctica Intercalada** - Implementación de práctica mixta vs bloqueada (Cohen's d = 0.83)
+- [ ] **Actividades de Descanso Avanzadas** - Experiencias VR de naturaleza y movimiento guiado
+- [ ] **Integración Biométrica** - Variabilidad de ritmo cardíaco para detección de fatiga en tiempo real
+- [ ] **Interferencia Semántica** - Ajustes de espaciado conscientes del contenido
+- [ ] **Gamificación Progresiva** - Sistema de logros basado en neurociencia
 
 ### 🌍 Visión a Largo Plazo (v3.0)
 - [ ] **VR/AR Support** - Entornos de estudio inmersivos
