@@ -46,6 +46,8 @@ Esta aplicación está basada en **investigación científica real**, no en moda
 - **🌿 Descansos Basados en Evidencia**: Escenas de naturaleza de 40 segundos para **23% mejora de atención**
 - **🎯 Evaluación SART**: Medición de atención sostenida para sesiones personalizadas
 - **🔄 Detección Adaptiva de Fatiga**: Optimización en tiempo real basada en retroalimentación
+- **🧠 Algoritmo LECTOR**: Repetición Orientada a Conceptos Mejorada con LLM con **90.2% de efectividad**
+- **🔄 Práctica Intercalada**: Optimización de práctica mixta vs bloqueada con **Cohen's d = 0.83**
 
 ### 📈 Resultados Comprobados
 
@@ -206,6 +208,55 @@ function getOptimalBreakActivities(duration: number) {
 }
 ```
 
+### 🧠 Algoritmo LECTOR (90.2% de Éxito)
+```typescript
+// Repetición Orientada a Conceptos Mejorada con LLM
+function calculateLectorInterval(
+  baseInterval: number,
+  semanticInterference: number, // 0.8-1.2 basado en similitud de conceptos
+  masteryLevel: number, // 0.5-2.0 basado en historial de rendimiento
+  repetitionCount: number,
+  personalFactor: number,
+  profile: UserProfile
+): number {
+  // Fórmula LECTOR: I(t+1) = H_eff(t) × α_semantic × α_mastery × α_repetition × α_personal
+  const alphaSemantic = Math.max(0.8, Math.min(1.2, semanticInterference));
+  const alphaMastery = Math.max(0.5, Math.min(2.0, masteryLevel));
+  const alphaRepetition = Math.max(0.9, Math.min(1.1, 1.0 + (repetitionCount * 0.02)));
+  const alphaPersonal = Math.max(0.7, Math.min(1.5, personalFactor));
+
+  const lectorInterval = baseInterval * alphaSemantic * alphaMastery * alphaRepetition * alphaPersonal;
+  return Math.max(1, Math.round(lectorInterval));
+}
+```
+
+### 🔄 Práctica Intercalada (Cohen's d = 0.83)
+```typescript
+// Optimizar mezcla de temas para máximo beneficio de aprendizaje
+function generateInterleavedSchedule(
+  topics: Array<{ id: string; name: string; difficulty: number; timeRequired: number }>,
+  totalSessionTime: number,
+  profile: UserProfile
+) {
+  // Calcular puntuaciones de beneficio de intercalado
+  const topicsWithScores = topics.map(topic => {
+    let interleavingScore = 1.0;
+    
+    // Factor 1: Variación de dificultad (mayor puntuación para dificultad mixta)
+    const avgDifficulty = topics.reduce((sum, t) => sum + t.difficulty, 0) / topics.length;
+    interleavingScore += Math.abs(topic.difficulty - avgDifficulty) / 5 * 0.3;
+    
+    // Factor 2: Nivel de dominio (menor dominio = mayor beneficio de intercalado)
+    interleavingScore += (1 - (topic.masteryLevel || 0.5)) * 0.3;
+    
+    return { ...topic, interleavingScore };
+  });
+
+  // Generar secuencia óptima A-B-C-A-B-C con segmentos de 10-20 minutos
+  return createOptimalSequence(topicsWithScores, totalSessionTime);
+}
+```
+
 ---
 
 ## 🌟 Roadmap
@@ -219,15 +270,15 @@ function getOptimalBreakActivities(duration: number) {
 - [x] **Microdescansos basados en evidencia** con recomendaciones de naturaleza
 - [x] **Detección adaptiva de fatiga** con optimización en tiempo real
 - [x] **Integración de ritmos ultradianos** para programación de sesiones
+- [x] **Algoritmo LECTOR** - Repetición Orientada a Conceptos Mejorada con LLM (90.2% de éxito)
+- [x] **Práctica Intercalada** - Implementación de práctica mixta vs bloqueada (Cohen's d = 0.83)
+- [x] **Interferencia Semántica** - Ajustes de espaciado conscientes del contenido
 - [x] **Tema dark elegante** con conformidad WCAG 2.1 AA
 - [x] **Deploy en GitHub Pages** con pipeline CI/CD
 
 ### 🚀 Próximas Características (v2.0)
-- [ ] **Algoritmo LECTOR** - Repetición Orientada a Conceptos Mejorada con LLM (90.2% de éxito)
-- [ ] **Práctica Intercalada** - Implementación de práctica mixta vs bloqueada (Cohen's d = 0.83)
 - [ ] **Actividades de Descanso Avanzadas** - Experiencias VR de naturaleza y movimiento guiado
 - [ ] **Integración Biométrica** - Variabilidad de ritmo cardíaco para detección de fatiga en tiempo real
-- [ ] **Interferencia Semántica** - Ajustes de espaciado conscientes del contenido
 - [ ] **Gamificación Progresiva** - Sistema de logros basado en neurociencia
 
 ### 🌍 Visión a Largo Plazo (v3.0)

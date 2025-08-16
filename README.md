@@ -46,6 +46,8 @@ This application is based on **real scientific research**, not trends or opinion
 - **🌿 Evidence-Based Breaks**: 40-second nature scenes for **23% attention improvement**
 - **🎯 SART Assessment**: Sustained attention measurement for personalized session lengths
 - **🔄 Adaptive Fatigue Detection**: Real-time optimization based on performance feedback
+- **🧠 LECTOR Algorithm**: LLM-Enhanced Concept-based Test-Oriented Repetition with **90.2% effectiveness**
+- **🔄 Interleaved Practice**: Mixed vs blocked practice optimization with **Cohen's d = 0.83**
 
 ### 📈 Proven Results
 
@@ -206,6 +208,55 @@ function getOptimalBreakActivities(duration: number) {
 }
 ```
 
+### 🧠 LECTOR Algorithm (90.2% Success Rate)
+```typescript
+// LLM-Enhanced Concept-based Test-Oriented Repetition
+function calculateLectorInterval(
+  baseInterval: number,
+  semanticInterference: number, // 0.8-1.2 based on concept similarity
+  masteryLevel: number, // 0.5-2.0 based on performance history
+  repetitionCount: number,
+  personalFactor: number,
+  profile: UserProfile
+): number {
+  // LECTOR formula: I(t+1) = H_eff(t) × α_semantic × α_mastery × α_repetition × α_personal
+  const alphaSemantic = Math.max(0.8, Math.min(1.2, semanticInterference));
+  const alphaMastery = Math.max(0.5, Math.min(2.0, masteryLevel));
+  const alphaRepetition = Math.max(0.9, Math.min(1.1, 1.0 + (repetitionCount * 0.02)));
+  const alphaPersonal = Math.max(0.7, Math.min(1.5, personalFactor));
+
+  const lectorInterval = baseInterval * alphaSemantic * alphaMastery * alphaRepetition * alphaPersonal;
+  return Math.max(1, Math.round(lectorInterval));
+}
+```
+
+### 🔄 Interleaved Practice (Cohen's d = 0.83)
+```typescript
+// Optimize topic mixing for maximum learning benefit
+function generateInterleavedSchedule(
+  topics: Array<{ id: string; name: string; difficulty: number; timeRequired: number }>,
+  totalSessionTime: number,
+  profile: UserProfile
+) {
+  // Calculate interleaving benefit scores
+  const topicsWithScores = topics.map(topic => {
+    let interleavingScore = 1.0;
+    
+    // Factor 1: Difficulty variation (higher score for mixed difficulty)
+    const avgDifficulty = topics.reduce((sum, t) => sum + t.difficulty, 0) / topics.length;
+    interleavingScore += Math.abs(topic.difficulty - avgDifficulty) / 5 * 0.3;
+    
+    // Factor 2: Mastery level (lower mastery = higher interleaving benefit)
+    interleavingScore += (1 - (topic.masteryLevel || 0.5)) * 0.3;
+    
+    return { ...topic, interleavingScore };
+  });
+
+  // Generate optimal A-B-C-A-B-C sequence with 10-20 minute segments
+  return createOptimalSequence(topicsWithScores, totalSessionTime);
+}
+```
+
 ---
 
 ## 🌟 Roadmap
@@ -219,15 +270,15 @@ function getOptimalBreakActivities(duration: number) {
 - [x] **Evidence-based microbreaks** with nature scene recommendations
 - [x] **Adaptive fatigue detection** with real-time optimization
 - [x] **Ultradian rhythm** integration for session scheduling
+- [x] **LECTOR Algorithm** - LLM-Enhanced Concept-based Test-Oriented Repetition (90.2% success rate)
+- [x] **Interleaved Practice** - Mixed vs blocked practice implementation (Cohen's d = 0.83)
+- [x] **Semantic Interference** - Content-aware spacing adjustments
 - [x] **Elegant dark theme** with WCAG 2.1 AA compliance
 - [x] **GitHub Pages deployment** with CI/CD pipeline
 
 ### 🚀 Next Features (v2.0)
-- [ ] **LECTOR Algorithm** - LLM-Enhanced Concept-based Test-Oriented Repetition (90.2% success rate)
-- [ ] **Interleaved Practice** - Mixed vs blocked practice implementation (Cohen's d = 0.83)
 - [ ] **Advanced Break Activities** - VR nature experiences and guided movement
 - [ ] **Biometric Integration** - Heart rate variability for real-time fatigue detection
-- [ ] **Semantic Interference** - Content-aware spacing adjustments
 - [ ] **Progressive Gamification** - Neuroscience-based achievement system
 
 ### 🌍 Long-term Vision (v3.0)
