@@ -225,10 +225,10 @@ export class StorageService {
 
     return {
       totalSessions: recentSessions.length,
-      totalMinutes,
-      averageFocus,
-      completionRate,
-      sessionsPerDay: recentSessions.length / days
+      totalMinutes: Math.round(totalMinutes * 100) / 100,
+      averageFocus: Math.round(averageFocus * 100) / 100,
+      completionRate: Math.round(completionRate * 100) / 100,
+      sessionsPerDay: Math.round((recentSessions.length / days) * 100) / 100
     };
   }
 

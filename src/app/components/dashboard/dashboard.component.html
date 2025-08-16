@@ -44,7 +44,7 @@
         @if (monthStats() && monthStats()!.totalSessions > 0) {
           <div class="stat-value">{{ formatMinutes(monthStats()!.totalMinutes) }}</div>
           <div class="stat-details">
-            <span>{{ monthStats()!.sessionsPerDay.toFixed(1) }} sessions/day</span>
+            <span>{{ monthStats()!.sessionsPerDay.toFixed(2) }} sessions/day</span>
           </div>
         } @else {
           <div class="stat-value">0 min</div>
