@@ -208,10 +208,7 @@ function calculateNextInterval(interval: number, easeFactor: number, quality: nu
 ## 📞 Contacto
 
 **Alan "The Gentleman" Buscaglia**
-- 🎥 **YouTube**: [@GentlemanProgramming](https://youtube.com/@gentlemanprogramming)
-- 🐦 **Twitter**: [@AlanBuscaglia](https://twitter.com/alanbuscaglia)
-- 💼 **LinkedIn**: [Alan Buscaglia](https://linkedin.com/in/alanbuscaglia)
-- 📧 **Email**: alan@gentlemanprogramming.com
+- 🔗 **Todos mis links**: [doras.to/gentleman-programming](https://doras.to/gentleman-programming)
 
 ---
 

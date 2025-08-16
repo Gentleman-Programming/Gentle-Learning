@@ -208,10 +208,7 @@ Contributions are welcome! As an educational developer, I firmly believe in **op
 ## 📞 Contact
 
 **Alan "The Gentleman" Buscaglia**
-- 🎥 **YouTube**: [@GentlemanProgramming](https://youtube.com/@gentlemanprogramming)
-- 🐦 **Twitter**: [@AlanBuscaglia](https://twitter.com/alanbuscaglia)
-- 💼 **LinkedIn**: [Alan Buscaglia](https://linkedin.com/in/alanbuscaglia)
-- 📧 **Email**: alan@gentlemanprogramming.com
+- 🔗 **All Links**: [doras.to/gentleman-programming](https://doras.to/gentleman-programming)
 
 ---
 
