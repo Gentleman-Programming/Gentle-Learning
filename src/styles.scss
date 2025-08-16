@@ -1,49 +1,64 @@
 /* Global Styles for Gentle Learning */
 
 :root {
-  /* Primary Colors */
+  /* Primary Colors - More refined magenta */
   --primary-color: #E343B9;
-  --primary-light: #FF4CC9;
-  --primary-dark: #C73B98;
-  --primary-alpha-10: rgba(227, 67, 185, 0.1);
-  --primary-alpha-20: rgba(227, 67, 185, 0.2);
-  --primary-alpha-30: rgba(227, 67, 185, 0.3);
-  --primary-alpha-50: rgba(227, 67, 185, 0.5);
-  --primary-alpha-70: rgba(227, 67, 185, 0.7);
-  --primary-alpha-80: rgba(227, 67, 185, 0.8);
+  --primary-light: #F366D1;
+  --primary-dark: #B8329A;
+  --primary-muted: #D65BAD;
+  --primary-alpha-05: rgba(227, 67, 185, 0.05);
+  --primary-alpha-10: rgba(227, 67, 185, 0.10);
+  --primary-alpha-15: rgba(227, 67, 185, 0.15);
+  --primary-alpha-20: rgba(227, 67, 185, 0.20);
+  --primary-alpha-30: rgba(227, 67, 185, 0.30);
   
-  /* Background Colors */
-  --background-dark: #000000;
-  --background-card: #111111;
-  --background-hover: #222222;
-  --background-border: #333333;
+  /* Background Colors - Softer grays */
+  --background-primary: #0a0a0a;
+  --background-secondary: #151518;
+  --background-tertiary: #1f1f23;
+  --background-card: #18181b;
+  --background-elevated: #212125;
+  --background-hover: #27272a;
+  --background-active: #2f2f33;
+  --background-border: #3f3f46;
+  --background-subtle: #71717a;
   
-  /* Text Colors */
-  --text-primary: #E343B9;              /* Títulos y elementos de énfasis */
-  --text-reading: rgb(208, 204, 198);   /* Texto de lectura principal */
-  --text-secondary: rgba(208, 204, 198, 0.8);
-  --text-muted: rgba(208, 204, 198, 0.7);
-  --text-placeholder: rgba(208, 204, 198, 0.5);
+  /* Text Colors - WCAG 2.1 AA compliant */
+  --text-primary: #ffffff;
+  --text-secondary: #f5f5f5;
+  --text-tertiary: #e0e0e0;
+  --text-muted: #b8b8b8;
+  --text-subtle: #9a9a9a;
+  --text-placeholder: #757575;
+  --text-disabled: #5a5a5a;
   --text-inverse: #000000;
-  --text-on-primary: #FFFFFF;           /* Texto blanco sobre fondos rosa */
+  --text-on-primary: #ffffff;
+  --text-accent: var(--primary-color);
   
-  /* Gradient Colors */
-  --gradient-primary: linear-gradient(135deg, #E343B9 0%, #FF4CC9 100%);
-  --gradient-secondary: linear-gradient(90deg, #E343B9, #FF4CC9);
+  /* Gradient Colors - More sophisticated */
+  --gradient-primary: linear-gradient(135deg, #E343B9 0%, #F366D1 50%, #D65BAD 100%);
+  --gradient-secondary: linear-gradient(180deg, var(--background-card) 0%, var(--background-elevated) 100%);
+  --gradient-subtle: linear-gradient(135deg, var(--primary-alpha-05) 0%, var(--primary-alpha-15) 100%);
   
-  /* Status Colors */
-  --success-color: #10b981;
-  --success-light: #34d399;
-  --success-background: #d1fae5;
-  --warning-color: #fbbf24;
-  --warning-background: #fef3c7;
+  /* Status Colors - Refined palette */
+  --success-color: #22c55e;
+  --success-light: #4ade80;
+  --success-background: rgba(34, 197, 94, 0.1);
+  --warning-color: #f59e0b;
+  --warning-background: rgba(245, 158, 11, 0.1);
   --error-color: #ef4444;
-  --error-background: #fee2e2;
+  --error-background: rgba(239, 68, 68, 0.1);
+  --info-color: #3b82f6;
+  --info-background: rgba(59, 130, 246, 0.1);
   
-  /* Shadow Colors */
-  --shadow-primary: rgba(227, 67, 185, 0.1);
-  --shadow-primary-hover: rgba(227, 67, 185, 0.2);
-  --shadow-primary-focus: rgba(227, 67, 185, 0.3);
+  /* Shadow Colors - More subtle */
+  --shadow-color: rgba(0, 0, 0, 0.25);
+  --shadow-primary: rgba(227, 67, 185, 0.08);
+  --shadow-primary-hover: rgba(227, 67, 185, 0.15);
+  --shadow-primary-focus: rgba(227, 67, 185, 0.25);
+  --shadow-elevation-low: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-elevation-medium: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+  --shadow-elevation-high: 0 8px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.12);
   
   /* Border Radius */
   --border-radius-sm: 0.25rem;
@@ -90,12 +105,14 @@ html {
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  color: var(--text-reading);
-  background: var(--background-dark);
+  color: var(--text-primary);
+  background: var(--background-primary);
   min-height: 100vh;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  letter-spacing: -0.01em;
 }
 
 h1, h2, h3, h4, h5, h6 {
