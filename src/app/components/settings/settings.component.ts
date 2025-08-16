@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 import { NotificationService } from '../../services/notification.service';
 
@@ -102,6 +103,7 @@ import { NotificationService } from '../../services/notification.service';
 export class SettingsComponent {
   storageService = inject(StorageService);
   notificationService = inject(NotificationService);
+  router = inject(Router);
 
   async requestNotificationPermission() {
     await this.notificationService.requestPermission();
@@ -110,7 +112,7 @@ export class SettingsComponent {
   clearData() {
     if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
       this.storageService.clearAllData();
-      window.location.reload();
+      this.router.navigate(['/assessment']);
     }
   }
 }
