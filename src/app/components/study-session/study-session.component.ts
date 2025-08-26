@@ -1,4 +1,12 @@
-import { Component, signal, computed, inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  signal,
+  computed,
+  inject,
+  OnInit,
+  OnDestroy,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { StorageService } from '../../services/storage.service';
@@ -11,7 +19,7 @@ import { StudySession, Break } from '../../models/study-session.model';
   templateUrl: './study-session.component.html',
   styleUrls: ['./study-session.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [CommonModule, ReactiveFormsModule],
 })
 export class StudySessionComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
@@ -24,12 +32,12 @@ export class StudySessionComponent implements OnInit, OnDestroy {
   sessionPaused = signal(false);
   onBreak = signal(false);
   currentSession = signal<StudySession | null>(null);
-  
+
   // Timers
   sessionTime = signal(0); // seconds
   breakTime = signal(0); // seconds
   microbreakCountdown = signal(0); // seconds
-  
+
   private sessionInterval?: number;
   private breakInterval?: number;
   private microbreakInterval?: number;
@@ -46,7 +54,7 @@ export class StudySessionComponent implements OnInit, OnDestroy {
   sessionForm = this.fb.group({
     subject: ['', Validators.required],
     sessionType: ['study', Validators.required],
-    customDuration: [null as number | null]
+    customDuration: [null as number | null],
   });
 
   // Progress calculations
@@ -119,32 +127,39 @@ export class StudySessionComponent implements OnInit, OnDestroy {
         focusScore: 100,
         completionRate: 0,
         errorsCount: 0,
-        selfReportedFatigue: 1
+        selfReportedFatigue: 1,
       },
       status: 'in-progress',
-      sessionType: formData.sessionType as 'study' | 'review' | 'practice'
+      sessionType: formData.sessionType as 'study' | 'review' | 'practice',
     };
 
     this.currentSession.set(session);
     this.storageService.addStudySession(session);
-    
+
     this.sessionActive.set(true);
     this.sessionPaused.set(false);
     this.onBreak.set(false);
     this.sessionTime.set(0);
-    
+
     this.startSessionTimer();
     this.scheduleMicrobreaks();
     this.scheduleBreakNotification();
   }
 
+  private startTime?: number;
+
   private startSessionTimer(): void {
     this.clearInterval(this.sessionInterval);
+
+    // Save the timestamp of when the session started (in ms)
+    this.startTime = Date.now() - this.sessionTime() * 1000;
+
     this.sessionInterval = window.setInterval(() => {
       if (!this.sessionPaused() && !this.onBreak()) {
-        this.sessionTime.update(time => time + 1);
-        
-        // Check if session time reached
+        const elapsed = Math.floor((Date.now() - (this.startTime ?? Date.now())) / 1000);
+        this.sessionTime.set(elapsed);
+
+        // Check if the session has reached its end
         const schedule = this.studySchedule();
         if (schedule && this.sessionTime() >= schedule.sessionLength * 60) {
           this.startBreak();
@@ -156,22 +171,22 @@ export class StudySessionComponent implements OnInit, OnDestroy {
   startBreak(): void {
     this.onBreak.set(true);
     this.breakTime.set(0);
-    
+
     const currentSessionData = this.currentSession();
     if (currentSessionData) {
       const breakData: Break = {
         startTime: new Date(),
-        type: 'short'
+        type: 'short',
       };
-      
+
       this.storageService.updateStudySession(currentSessionData.id, {
-        breaksTaken: [...currentSessionData.breaksTaken, breakData]
+        breaksTaken: [...currentSessionData.breaksTaken, breakData],
       });
     }
 
     this.clearInterval(this.sessionInterval);
     this.startBreakTimer();
-    
+
     // Schedule resume notification
     const schedule = this.studySchedule();
     if (schedule) {
@@ -181,15 +196,15 @@ export class StudySessionComponent implements OnInit, OnDestroy {
     this.notificationService.showNotification(
       'Break Time!',
       'Great work! Time to rest and recharge.',
-      'break'
+      'break',
     );
   }
 
   private startBreakTimer(): void {
     this.clearInterval(this.breakInterval);
     this.breakInterval = window.setInterval(() => {
-      this.breakTime.update(time => time + 1);
-      
+      this.breakTime.update((time) => time + 1);
+
       const schedule = this.studySchedule();
       if (schedule && this.breakTime() >= schedule.breakDuration * 60) {
         this.endBreak();
@@ -200,26 +215,26 @@ export class StudySessionComponent implements OnInit, OnDestroy {
   endBreak(): void {
     this.onBreak.set(false);
     this.breakTime.set(0);
-    
+
     const currentSessionData = this.currentSession();
     if (currentSessionData && currentSessionData.breaksTaken.length > 0) {
       const lastBreak = currentSessionData.breaksTaken[currentSessionData.breaksTaken.length - 1];
       lastBreak.endTime = new Date();
       lastBreak.duration = this.breakTime() / 60;
-      
+
       this.storageService.updateStudySession(currentSessionData.id, {
-        breaksTaken: currentSessionData.breaksTaken
+        breaksTaken: currentSessionData.breaksTaken,
       });
     }
 
     this.clearInterval(this.breakInterval);
     this.startSessionTimer();
     this.scheduleMicrobreaks();
-    
+
     this.notificationService.showNotification(
       'Break Over',
-      'Ready to continue? Let\'s get back to work!',
-      'resume'
+      "Ready to continue? Let's get back to work!",
+      'resume',
     );
   }
 
@@ -227,7 +242,7 @@ export class StudySessionComponent implements OnInit, OnDestroy {
     this.sessionPaused.set(true);
     if (this.currentSession()) {
       this.storageService.updateStudySession(this.currentSession()!.id, {
-        status: 'paused'
+        status: 'paused',
       });
     }
   }
@@ -240,14 +255,14 @@ export class StudySessionComponent implements OnInit, OnDestroy {
       const elapsed = Math.floor((Date.now() - new Date(session.startTime).getTime()) / 1000);
       this.sessionTime.set(elapsed);
     }
-    
+
     this.sessionPaused.set(false);
     if (this.currentSession()) {
       this.storageService.updateStudySession(this.currentSession()!.id, {
-        status: 'in-progress'
+        status: 'in-progress',
       });
     }
-    
+
     this.startSessionTimer();
   }
 
@@ -263,18 +278,15 @@ export class StudySessionComponent implements OnInit, OnDestroy {
     const nextInterval = this.optimizerService.calculateNextInterval(
       session.lastInterval || 0,
       session.easeFactor || 2.5,
-      quality
+      quality,
     );
     const newEaseFactor = this.optimizerService.updateEaseFactor(
       session.easeFactor || 2.5,
-      quality
+      quality,
     );
 
     // Schedule next review
-    const nextReviewDate = this.optimizerService.getOptimalReviewTime(
-      new Date(),
-      nextInterval
-    );
+    const nextReviewDate = this.optimizerService.getOptimalReviewTime(new Date(), nextInterval);
 
     this.storageService.updateStudySession(session.id, {
       endTime: new Date(),
@@ -282,13 +294,13 @@ export class StudySessionComponent implements OnInit, OnDestroy {
       status: 'completed',
       performance: {
         ...session.performance,
-        completionRate
+        completionRate,
       },
       nextReview: nextReviewDate,
       lastInterval: nextInterval,
       easeFactor: newEaseFactor,
       qualityScore: quality,
-      reviewCount: (session.reviewCount || 0) + 1
+      reviewCount: (session.reviewCount || 0) + 1,
     });
 
     // Add to spaced repetition queue
@@ -300,7 +312,7 @@ export class StudySessionComponent implements OnInit, OnDestroy {
       interval: nextInterval,
       easeFactor: newEaseFactor,
       reviewCount: (session.reviewCount || 0) + 1,
-      lastReviewed: new Date()
+      lastReviewed: new Date(),
     });
 
     this.clearAllIntervals();
@@ -310,7 +322,7 @@ export class StudySessionComponent implements OnInit, OnDestroy {
     this.notificationService.showNotification(
       'Session Complete!',
       `Next review scheduled for ${nextReviewDate.toLocaleDateString()}`,
-      'completion'
+      'completion',
     );
   }
 
@@ -319,25 +331,28 @@ export class StudySessionComponent implements OnInit, OnDestroy {
     if (!schedule) return;
 
     this.clearInterval(this.microbreakInterval);
-    this.microbreakInterval = window.setInterval(() => {
-      if (!this.sessionPaused() && !this.onBreak()) {
-        this.notificationService.scheduleMicrobreak(0);
-        this.microbreakCountdown.set(40);
-        
-        const microbreakTimer = window.setInterval(() => {
-          this.microbreakCountdown.update(time => time - 1);
-          if (this.microbreakCountdown() <= 0) {
-            clearInterval(microbreakTimer);
-          }
-        }, 1000);
-      }
-    }, schedule.microbreakInterval * 60 * 1000);
+    this.microbreakInterval = window.setInterval(
+      () => {
+        if (!this.sessionPaused() && !this.onBreak()) {
+          this.notificationService.scheduleMicrobreak(0);
+          this.microbreakCountdown.set(40);
+
+          const microbreakTimer = window.setInterval(() => {
+            this.microbreakCountdown.update((time) => time - 1);
+            if (this.microbreakCountdown() <= 0) {
+              clearInterval(microbreakTimer);
+            }
+          }, 1000);
+        }
+      },
+      schedule.microbreakInterval * 60 * 1000,
+    );
   }
 
   private scheduleBreakNotification(): void {
     const schedule = this.studySchedule();
     if (!schedule) return;
-    
+
     this.notificationService.scheduleBreakNotification(schedule.sessionLength);
   }
 
@@ -406,8 +421,8 @@ export class StudySessionComponent implements OnInit, OnDestroy {
       this.storageService.updateStudySession(session.id, {
         performance: {
           ...session.performance,
-          selfReportedFatigue: level
-        }
+          selfReportedFatigue: level,
+        },
       });
 
       // Adaptive response based on fatigue level and current context
@@ -425,7 +440,7 @@ export class StudySessionComponent implements OnInit, OnDestroy {
       level: fatigueLevel,
       timeElapsed: currentTime,
       sessionLength: session.plannedDuration,
-      timeOfDay: new Date().getHours()
+      timeOfDay: new Date().getHours(),
     };
 
     if (fatigueLevel >= 8) {
@@ -435,7 +450,7 @@ export class StudySessionComponent implements OnInit, OnDestroy {
         this.notificationService.showNotification(
           'Critical Fatigue Detected',
           'Starting immediate break to prevent burnout',
-          'fatigue'
+          'fatigue',
         );
       }
     } else if (fatigueLevel >= 6) {
@@ -443,13 +458,13 @@ export class StudySessionComponent implements OnInit, OnDestroy {
       const trigger = this.notificationService.getAdaptiveTrigger(
         10 - fatigueLevel, // Convert fatigue to motivation (lower motivation)
         3, // Reduced ability due to fatigue
-        'during'
+        'during',
       );
-      
+
       this.notificationService.showNotification(
         'High Fatigue Detected',
         trigger.message,
-        'fatigue'
+        'fatigue',
       );
 
       // Suggest micro-break if not already on break
@@ -461,7 +476,7 @@ export class StudySessionComponent implements OnInit, OnDestroy {
       this.notificationService.showNotification(
         'Take Care',
         'Consider a short break or some deep breaths',
-        'wellness'
+        'wellness',
       );
     }
 
@@ -481,11 +496,11 @@ export class StudySessionComponent implements OnInit, OnDestroy {
       if (userProfile) {
         // Reduce recommended session length by 15%
         const newRecommendedLength = Math.max(15, session.plannedDuration * 0.85);
-        
+
         this.notificationService.showNotification(
           'Session Optimization',
           `Consider ${Math.round(newRecommendedLength)}-minute sessions for better focus`,
-          'optimization'
+          'optimization',
         );
       }
     }
